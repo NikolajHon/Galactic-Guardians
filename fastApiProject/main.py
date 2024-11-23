@@ -1,10 +1,15 @@
 import os
 from http.client import responses
+from io import BytesIO
 
 from openai import OpenAI
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import pandas as pd
+
+from data import Data
+
 # Initialize FastAPI app
 app = FastAPI()
 load_dotenv()
@@ -37,6 +42,23 @@ async def chat_with_gpt(request: ChatRequest):
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    if file.content_type != "text/csv":
+    if file.content_type != "multipart/form-data":
         raise HTTPException( status_code=400, detail="Unsupported Media Type" )
-    else: df = pd.read_csv(file.file)
+
+    contents = await file.read()
+
+    # Convert the content to a file-like object (BytesIO)
+    file_like_object = BytesIO(contents)\
+
+    try:
+        # Load the CSV data into a pandas DataFrame
+        df = pd.read_csv(file_like_object)
+
+        # Return a summary of the CSV data (e.g., first 5 rows)
+        return {"filename": file.filename, "first_rows": df.head().to_dict()}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error reading CSV: {e}")
+
+data = Data()
+data.open_csv("datasets/Cleaned_Students_Performance.csv")
+
