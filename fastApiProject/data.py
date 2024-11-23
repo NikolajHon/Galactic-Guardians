@@ -15,7 +15,7 @@ class DataFrameSQLProcessor:
         self.df = pd.read_csv(file_path)
         print(f"CSV-file uploaded: {', '.join(self.df.columns)}")
 
-    def ask_question(self, question):
+    def generate_query(self, question):
         """
         Отправляет вопрос и список колонок в ChatGPT, получает SQL-запрос и выполняет его.
         :param question: Вопрос пользователя.
@@ -49,9 +49,10 @@ class DataFrameSQLProcessor:
 
         # Получаем сгенерированный SQL-запрос
         sql_query = response["choices"][0]["message"]["content"].strip()
-        print("Сгенерированный SQL-запрос:")
+        print(f"Сгенерированный SQL-запрос:,: {sql_query}")
 
-        # Выполняем SQL-запрос
+
+    def retrieve_data(self, sql_query):
         try:
             result = psql.sqldf(sql_query, {"df": self.df})
             return result

@@ -21,26 +21,14 @@ client = OpenAI(
 SQProcessor = DataFrameSQLProcessor(client)
 
 @app.post("/chat")
-async def chat_with_gpt(request: ChatRequest):
+async def get_SQL_request(request: ChatRequest):
     SQProcessor.load_csv("datasets/Cleaned_Students_Performance.csv")
-    return SQProcessor.ask_question(request.message)
+    return SQProcessor.generate_query(request.message)
 
-    '''
-    try:
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": request.message,
-                }
-            ],
-            model="gpt-3.5-turbo",
-        )
-
-        return {"response": chat_completion.choices[0].message.content}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    '''
+@app.post("/get_answer")
+async def get_answer(request: ChatRequest):
+    SQProcessor.load_csv("datasets/Cleaned_Students_Performance.csv")
+    return SQProcessor.retrieve_data( SQProcessor.generate_query(request.message) )
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
