@@ -1,13 +1,60 @@
-import pandas as pd
-from fastapi import File
+import os
 
-class Data:
-    def __init__(self):
+import pandas as pd
+import pandasql as psql
+import openai
+from openai import OpenAI
+
+class DataFrameSQLProcessor:
+    def __init__(self, client: OpenAI):
+        self.client = client
         self.df = None
 
-    def open_csv(self, name: str):
+    def load_csv(self, file_path):
+
+        self.df = pd.read_csv(file_path)
+        print(f"CSV-file uploaded: {', '.join(self.df.columns)}")
+
+    def ask_question(self, question):
+        """
+        Отправляет вопрос и список колонок в ChatGPT, получает SQL-запрос и выполняет его.
+        :param question: Вопрос пользователя.
+        :return: DataFrame с результатами SQL-запроса.
+        """
+        if self.df is None:
+            raise ValueError("Сначала загрузите CSV-файл с помощью load_csv().")
+
+        # Формируем список колонок
+        columns = ", ".join(self.df.columns)
+
+        # Формируем запрос к ChatGPT
+        prompt = (
+            f"Данный CSV-файл содержит следующие колонки: {columns}.\n"
+            f"Пользователь спрашивает: '{question}'.\n"
+            f"Пожалуйста, сгенерируйте соответствующий SQL-запрос для ответа на этот вопрос."
+        )
+
         try:
-            df = pd.read_csv(name)
-            print(df.info())
-        except FileNotFoundError:
-            print("no such file")
+            # Отправка запроса к модели
+            response = self.client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            # Извлечение и возврат ответа
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Произошла ошибка: {e}"
+
+        # Получаем сгенерированный SQL-запрос
+        sql_query = response["choices"][0]["message"]["content"].strip()
+        print("Сгенерированный SQL-запрос:")
+
+        # Выполняем SQL-запрос
+        try:
+            result = psql.sqldf(sql_query, {"df": self.df})
+            return result
+        except Exception as e:
+            print("Ошибка при выполнении SQL-запроса:", e)
+            return None

@@ -4,28 +4,29 @@ from io import BytesIO
 
 from openai import OpenAI
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from pydantic import BaseModel
 from dotenv import load_dotenv
 import pandas as pd
 
-from data import Data
+from data import DataFrameSQLProcessor
+from models import ChatRequest
 
 # Initialize FastAPI app
 app = FastAPI()
 load_dotenv()
 
-# Define request body schema
-class ChatRequest(BaseModel):
-    message: str
-
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
+SQProcessor = DataFrameSQLProcessor(client)
+
 @app.post("/chat")
 async def chat_with_gpt(request: ChatRequest):
-    try:
+    SQProcessor.load_csv("datasets/Cleaned_Students_Performance.csv")
+    return SQProcessor.ask_question(request.message)
 
+    '''
+    try:
         chat_completion = client.chat.completions.create(
             messages=[
                 {
@@ -39,6 +40,7 @@ async def chat_with_gpt(request: ChatRequest):
         return {"response": chat_completion.choices[0].message.content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    '''
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
@@ -58,7 +60,3 @@ async def upload_file(file: UploadFile = File(...)):
         return {"filename": file.filename, "first_rows": df.head().to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error reading CSV: {e}")
-
-data = Data()
-data.open_csv("datasets/Cleaned_Students_Performance.csv")
-
