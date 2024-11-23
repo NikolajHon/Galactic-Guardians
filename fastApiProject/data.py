@@ -17,40 +17,42 @@ class DataFrameSQLProcessor:
 
     def generate_query(self, question):
         """
-        Отправляет вопрос и список колонок в ChatGPT, получает SQL-запрос и выполняет его.
+        Отправляет вопрос и список колонок с их уникальными значениями в ChatGPT,
+        получает чистый SQL-запрос и возвращает его.
         :param question: Вопрос пользователя.
-        :return: DataFrame с результатами SQL-запроса.
+        :return: Сгенерированный SQL-запрос.
         """
         if self.df is None:
             raise ValueError("Сначала загрузите CSV-файл с помощью load_csv().")
 
-        # Формируем список колонок
-        columns = ", ".join(self.df.columns)
+        # Создаем список колонок и уникальных значений
+        column_values = {col: self.df[col].unique().tolist() for col in self.df.columns}
+        column_info = "\n".join([f"Колонка '{col}': {values}" for col, values in column_values.items()])
 
-        # Формируем запрос к ChatGPT
+        # Формируем подсказку
         prompt = (
-            f"Данный CSV-файл содержит следующие колонки: {columns}.\n"
+            f"У меня есть pandas DataFrame с именем 'df', содержащий следующие колонки и уникальные значения:\n"
+            f"{column_info}\n\n"
             f"Пользователь спрашивает: '{question}'.\n"
-            f"Пожалуйста, сгенерируйте соответствующий SQL-запрос для ответа на этот вопрос."
+            f"Пожалуйста, сгенерируйте SQL-запрос, который будет выполнен с помощью pandasql. "
+            f"Верните только SQL-запрос без лишнего текста."
         )
 
         try:
             # Отправка запроса к модели
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
+                messages=[{"role": "user", "content": prompt}]
             )
-            # Извлечение и возврат ответа
-            return response.choices[0].message.content
+            # Извлечение SQL-запроса
+            sql_query = response["choices"][0]["message"]["content"].strip()
+
+            # Убираем лишний текст, если присутствует
+            if "```" in sql_query:
+                sql_query = sql_query.split("```")[1].strip()
+            return sql_query
         except Exception as e:
             return f"Произошла ошибка: {e}"
-
-        # Получаем сгенерированный SQL-запрос
-        sql_query = response["choices"][0]["message"]["content"].strip()
-        print(f"Сгенерированный SQL-запрос:,: {sql_query}")
-
 
     def retrieve_data(self, sql_query):
         try:
