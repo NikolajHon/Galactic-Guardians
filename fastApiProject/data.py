@@ -1,13 +1,14 @@
 import pandas as pd
 import numpy as np
 
-try:
-    df = pd.read_csv('datasets/Cleaned_Students_Performance.csv')
 
-    print(df.info())
-    #print(df.describe())
-except FileNotFoundError:
-    print("no such file")
+class Data:
+    def __init__(self, name: str):
+        self.csv_name = name
 
-#print( df )
-
+    def open_csv(self):
+        try:
+            df = pd.read_csv(self.csv_name)
+            print(df.info())
+        except FileNotFoundError:
+            print("no such file")
