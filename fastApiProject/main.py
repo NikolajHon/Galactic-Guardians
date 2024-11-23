@@ -4,18 +4,18 @@ from http.client import responses
 from openai import OpenAI
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-
+from dotenv import load_dotenv
 # Initialize FastAPI app
 app = FastAPI()
+load_dotenv()
 
 # Define request body schema
 class ChatRequest(BaseModel):
     message: str
 
 client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")  # This is the default and can be omitted
+    api_key=os.getenv("OPENAI_API_KEY")
 )
-
 
 @app.post("/chat")
 async def chat_with_gpt(request: ChatRequest):
@@ -25,12 +25,12 @@ async def chat_with_gpt(request: ChatRequest):
             messages=[
                 {
                     "role": "user",
-                    "content": "Say this is a test",
+                    "content": request.message,
                 }
             ],
-            model="gpt-4",
+            model="gpt-3.5-turbo",
         )
 
-        return {"response": chat_completion.choices[0].message['content']}
+        return {"response": chat_completion.choices[0].message.content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
