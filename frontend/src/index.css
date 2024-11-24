@@ -9,7 +9,7 @@ body, html, #root {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  background: linear-gradient(135deg, #ef0e8c, #db6bee, #fa53b1); /* Градиент */
+  background-color: #181717; /* Замените фон на однотонный */
   background-size: 400% 400%; /* Динамический эффект */
   animation: gradientAnimation 10s ease infinite; /* Анимация для плавного изменения */
 }
@@ -40,7 +40,20 @@ body, html, #root {
   border-radius: 50%;
 }
 
-.header-buttons {
+
+.centered-buttons {
+  display: flex;
+  justify-content: center; /* Центрируем кнопки по горизонтали */
+  align-items: center;
+  gap: 10px; /* Пространство между кнопками */
+  flex-wrap: wrap; /* Перенос кнопок на следующую строку, если не хватает места */
+  padding: 10px;
+  box-sizing: border-box;
+  position: relative;
+  top: 20px;
+  margin-left: 0; /* Обнуляем любые отступы, чтобы они были по центру */
+}
+.right-aligned-buttons {
   display: flex;
   justify-content: center; /* Центрируем кнопки */
   align-items: center;
@@ -50,10 +63,12 @@ body, html, #root {
   box-sizing: border-box; /* Учитываем padding в расчетах размера */
   position: relative; /* Устанавливаем позиционирование */
   top: 20px; /* Сдвигаем только блок кнопок вниз */
+  margin-left: 92px; /* Отступ на 200 пикселей от левого края */
 }
 
+
 .dropdown, .upload-btn {
-  background-color: #fcfcfc;
+  background-color: #fa53b1;
   color: #333;
   border: none;
   border-radius: 8px;
@@ -66,7 +81,7 @@ body, html, #root {
 }
 
 .dropdown:hover, .upload-btn:hover {
-  background-color: #f4a9c2;
+  background-color: #fa53b1;
 }
 
 
@@ -83,35 +98,35 @@ body, html, #root {
 
 .chat-section {
   flex: 1;
-  background-color: #ffe6f5;
+  background-color: #2c2a2c;
   padding: 16px;
-  border-radius: 20px;
+  border-radius: 20px; /* Закругление всех углов */
   overflow-y: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: calc(100vh - 200px); /* Высота */
+  height: calc(100vh - 240px); /* Уменьшите высоту, чтобы создать отступ снизу */
   width: 1700px;
+  margin: -6px 0; /* Добавьте отступ сверху и снизу для видимости нижних углов */
 }
 
 .visualization-section {
   flex: 2;
-  background-color: #ffe6f5;
-  color: #333;
+  background-color: #2c2a2c;
+  color: #fa53b1;
   padding: 20px;
   border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   box-sizing: border-box;
   height: calc(100vh - 200px); /* Высота */
   width: 1700px;
+  justify-content: flex-start; /* Сдвигаем содержимое наверх */
 }
-
 
 .chat-input-container {
   display: flex;
@@ -128,12 +143,20 @@ body, html, #root {
   flex: 1;
   padding: 12px;
   border-radius: 30px;
-  border: 1px solid #ccc;
+  border: 1px solid #2c2a2c;
   font-size: 16px;
+  background-color: #2c2a2c; /* Серый фон для поля ввода */
+  color: #fcfcfc; /* Цвет текста для контраста */
+  outline: none; /* Убираем стандартную обводку браузера */
+}
+
+.chat-input:focus {
+  border-color: #fa53b1; /* Более светлая обводка при наведении или фокусе */
+  box-shadow: 0 0 5px rgba(244, 169, 194, 0.8); /* Светлый эффект обводки при фокусе */
 }
 
 .send-btn {
-  background-color: #fcfcfc;
+  background-color: #fa53b1;
   color: #333;
   border: none;
   border-radius: 30px;
@@ -143,7 +166,7 @@ body, html, #root {
 }
 
 .send-btn:hover {
-  background-color: #f4a9c2;
+  background-color: #f686c6;
 }
 
 .chat-bubble, .response-bubble {

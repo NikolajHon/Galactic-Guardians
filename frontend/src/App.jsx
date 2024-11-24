@@ -44,7 +44,7 @@ function App() {
             {welcomeScreen ? (
                 <div className="welcome-screen">
                     <div className="welcome-content">
-                        <div className="header-buttons">
+                        <div className="header-buttons centered-buttons">
                             <button className="dropdown">Choose dataset ▼</button>
                             <button className="dropdown">Predictive model ▼</button>
                             <button className="upload-btn">Upload dataset</button>
@@ -67,7 +67,7 @@ function App() {
             ) : (
                 <>
                     <header className="header">
-                        <div className="header-buttons">
+                        <div className="header-buttons right-aligned-buttons">
                             <button className="dropdown">Choose dataset ▼</button>
                             <button className="dropdown">Predictive model ▼</button>
                             <button className="upload-btn">Upload dataset</button>
