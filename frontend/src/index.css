@@ -5,11 +5,13 @@ body, html, #root {
   height: 100%;
   width: 100%;
   font-family: Arial, sans-serif;
-  background-color: #ef0e8c;
   display: flex;
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  background: linear-gradient(135deg, #ef0e8c, #db6bee, #fa53b1); /* Градиент */
+  background-size: 400% 400%; /* Динамический эффект */
+  animation: gradientAnimation 10s ease infinite; /* Анимация для плавного изменения */
 }
 
 .mockup-container {
@@ -46,6 +48,8 @@ body, html, #root {
   flex-wrap: wrap; /* Перенос кнопок на следующую строку, если не хватает места */
   padding: 10px; /* Добавляем внутренний отступ */
   box-sizing: border-box; /* Учитываем padding в расчетах размера */
+  position: relative; /* Устанавливаем позиционирование */
+  top: 20px; /* Сдвигаем только блок кнопок вниз */
 }
 
 .dropdown, .upload-btn {
@@ -71,11 +75,14 @@ body, html, #root {
   flex: 1;
   gap: 16px;
   overflow: hidden;
-  height: 100%;
+  padding: 20px; /* Добавляем внутренние отступы */
+  max-width: 1200px; /* Ограничиваем максимальную ширину */
+  margin: 0 auto; /* Центрируем содержимое */
+  box-sizing: border-box;
 }
 
 .chat-section {
-  flex: 2;
+  flex: 1;
   background-color: #ffe6f5;
   padding: 16px;
   border-radius: 20px;
@@ -84,9 +91,59 @@ body, html, #root {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 1250px; /* Ограничиваем ширину */
-  margin: 0 auto; /* Центрируем чат */
-  height: 100%;
+  height: calc(100vh - 200px); /* Высота */
+  width: 1700px;
+}
+
+.visualization-section {
+  flex: 2;
+  background-color: #ffe6f5;
+  color: #333;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  height: calc(100vh - 200px); /* Высота */
+  width: 1700px;
+}
+
+
+.chat-input-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 16px auto;
+  max-width: 1200px; /* Ограничиваем ширину в пределах контейнера */
+  width: calc(100% - 40px); /* Учитываем внутренние отступы */
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.send-btn {
+  background-color: #fcfcfc;
+  color: #333;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.send-btn:hover {
+  background-color: #f4a9c2;
 }
 
 .chat-bubble, .response-bubble {
@@ -106,59 +163,6 @@ body, html, #root {
   background-color: #fca4cf;
 }
 
-.visualization-section {
-  flex: 3;
-  background: linear-gradient(135deg, #fad0c4, #ffc1dc); /* Градиент вместо фона */
-  color: #333;
-  padding: 20px;
-  border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Добавление тени */
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-  height: 100%;
-  max-width: 500px; /* Ограничиваем ширину */
-  margin: 0 auto; /* Центрируем */
-  max-width: 100%;
-}
-
-.chat-input-container {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin: 0 auto; /* Центрируем */
-  width: 100%; /* Ширина контейнера */
-  max-width: 1250px; /* Пропорционально ширине чата */
-  padding: 16px; /* Добавляем внутренние отступы */
-  box-sizing: border-box; /* Учитываем padding */
-}
-
-.chat-input {
-  flex: 1; /* Занимает оставшееся пространство */
-  padding: 12px;
-  border-radius: 30px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-.send-btn {
-  background-color: #fcfcfc;
-  color: #333;
-  border: none;
-  border-radius: 40px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.send-btn:hover {
-  background-color: #f4a9c2;
-}
-
-
 .footer {
   display: flex;
   justify-content: center;
@@ -173,7 +177,13 @@ body, html, #root {
   cursor: pointer;
   text-decoration: none;
   transition: transform 0.3s ease;
+  position: relative; /* Устанавливаем относительное позиционирование */
+  top: -20px; /* Поднимаем кнопку на 20px вверх */
+  margin-bottom: 0; /* Убираем лишние отступы снизу, если есть */
+  padding: 10px 16px; /* Добавляем отступы для улучшения дизайна */
 }
+
+
 
 .toggle-visualization-btn:hover {
   transform: scale(1.1);
