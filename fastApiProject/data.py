@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 import pandas as pd
 import pandasql as psql
@@ -64,7 +65,44 @@ class DataFrameSQLProcessor:
             print("Ошибка при выполнении SQL-запроса:", e)
             return None
 
-    def get_analyze(self, dataset_json, question):
+    def choose_dataset(self, question):
+        datasets_folder = 'datasets'  # Путь к папке с датасетами
+        dataframes = {}  # Словарь для хранения DataFrame
+        columns_info = {}  # Словарь для хранения информации о колонках
+
+        # Загрузка всех CSV файлов из папки
+        for file_name in os.listdir(datasets_folder):
+            if file_name.endswith('.csv'):
+                file_path = os.path.join(datasets_folder, file_name)
+                try:
+                    df = pd.read_csv(file_path)
+                    # Сохраняем DataFrame и его колонки
+                    dataframes[file_name] = df
+                    columns_info[file_name] = list(df.columns)
+                except Exception as e:
+                    print(f"Ошибка при обработке файла {file_name}: {e}")
+
+        # Сбор информации о колонках в одну строку
+        result = f"Question: {question}\nAvailable datasets and columns: "
+        result += " | ".join([f"File: {file_name}, Columns: {columns}" for file_name, columns in columns_info.items()])
+        prompt = (
+            f"Hello, customer have this question '{question}'\n"
+            f"Here you have list of available datasets and collums of this datasets:\n{result}\n\n"
+            f"Analyse this list abd decide which dataset match better then other for our question. but there may be a situation where the question does not apply to any of the dates, then write “no”. in the end write number of dataframe whice we choose .\n"
+
+        )
+        response = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        content = response.choices[0].message.content.strip()
+        if content == 'no':
+            return 0
+        number = int(re.search(r'\d+', content).group())
+
+
+def get_analyze(self, dataset_json, question):
         try:
             dataset_str = json.dumps(dataset_json, indent=2)
 

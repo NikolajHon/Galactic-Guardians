@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios'; // Директива import должна быть на верхнем уровне
 import './index.css';
 import MyChart from './MyChart.jsx';
 
@@ -8,6 +9,7 @@ function App() {
     const [showVisualization, setShowVisualization] = useState(false);
     const [welcomeScreen, setWelcomeScreen] = useState(true); // Управляет показом приветствующей страницы
     const [userQuery, setUserQuery] = useState(''); // Текст, введенный на приветственной странице
+    const [chartData, setChartData] = useState(null); // Данные для визуализации
     const chatRef = useRef(null);
 
     // Прокрутка вниз при обновлении сообщений
@@ -17,9 +19,51 @@ function App() {
         }
     }, [messages]);
 
+    const sendMessageToServer = async (message) => {
+        try {
+            const response = await axios.post('http://localhost:8000/get_analyse', {
+                message,
+            });
+
+            const data = response.data; // В axios данные находятся в свойстве `data`
+            console.log(data);
+
+            if (data.analysis) {
+                // Добавляем ответ бота
+                setMessages((prev) => [
+                    ...prev,
+                    { sender: 'bot', text: data.analysis },
+                ]);
+
+                // Устанавливаем данные для графика
+                if (data.chart) {
+                    setChartData({
+                        type: data.chartType,
+                        data: data.chart.data,
+                        xKey: data.chart.xKey,
+                        yKeys: data.chart.yKeys,
+                    });
+                    setShowVisualization(true); // Показываем график
+                }
+            } else {
+                setMessages((prev) => [
+                    ...prev,
+                    { sender: 'bot', text: 'No data available for the query.' },
+                ]);
+            }
+        } catch (error) {
+            console.error(error);
+            setMessages((prev) => [
+                ...prev,
+                { sender: 'bot', text: 'Error connecting to the server.' },
+            ]);
+        }
+    };
+
     const handleSendMessage = () => {
         if (inputValue.trim()) {
             setMessages([...messages, { sender: 'you', text: inputValue }]);
+            sendMessageToServer(inputValue); // Отправляем запрос на сервер
             setInputValue('');
         }
     };
@@ -33,6 +77,7 @@ function App() {
     const handleStart = () => {
         if (userQuery.trim()) {
             setMessages([...messages, { sender: 'you', text: userQuery }]); // Добавляем запрос в чат
+            sendMessageToServer(userQuery); // Отправляем запрос на сервер
         }
         const welcomeScreenElement = document.querySelector('.welcome-screen');
         welcomeScreenElement.classList.add('fade-out'); // Добавляем эффект исчезновения
@@ -86,16 +131,23 @@ function App() {
                                     }
                                 >
                                     <span>{message.sender}</span>
-                                    <p>{message.text}</p>
+                                    <p>
+                                        {typeof message.text === 'string'
+                                            ? message.text
+                                            : JSON.stringify(message.text.analysis)} {/* Обработка объекта */}
+                                    </p>
                                 </div>
                             ))}
                         </div>
+
                         {showVisualization && (
                             <div className="visualization-section">
                                 <h2>Visualized Data</h2>
-                                <MyChart />
+                                <MyChart
+                                />
                             </div>
                         )}
+
                     </div>
                     <div className="chat-input-container">
                         <input

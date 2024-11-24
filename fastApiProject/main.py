@@ -13,6 +13,17 @@ from models import ChatRequest
 
 # Initialize FastAPI app
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+
+# Настройки CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Разрешить запросы с указанного порта
+    allow_credentials=True,
+    allow_methods=["*"],  # Разрешить все методы (GET, POST и т.д.)
+    allow_headers=["*"],  # Разрешить все заголовки
+)
+
 load_dotenv()
 
 client = OpenAI(
@@ -52,7 +63,6 @@ async def get_answer(request: ChatRequest):
     except Exception as e:
         # Общий обработчик ошибок
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
 
 @app.post("/get_analyse")
 async def get_analyse(request: ChatRequest):
