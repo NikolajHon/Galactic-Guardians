@@ -88,21 +88,22 @@ class DataFrameSQLProcessor:
         prompt = (
             f"Hello, customer have this question '{question}'\n"
             f"Here you have list of available datasets and collums of this datasets:\n{result}\n\n"
-            f"Analyse this list abd decide which dataset match better then other for our question. but there may be a situation where the question does not apply to any of the dates, then write “no”. in the end write number of dataframe whice we choose .\n"
+            f"Analyse this list abd decide which dataset match better then other for our question. but there may be a situation where the question does not apply to any of the dates, then write “0”. in the end write number of dataframe whice we choose .you have to find a clear connection between the question and the dataset. .\n"
 
         )
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
-
+        print("WE ARE IN FUNCTION")
         content = response.choices[0].message.content.strip()
         if content == 'no':
             return 0
         number = int(re.search(r'\d+', content).group())
+        return number
 
+    def get_analyze(self, dataset_json, question):
 
-def get_analyze(self, dataset_json, question):
         try:
             dataset_str = json.dumps(dataset_json, indent=2)
 
@@ -127,12 +128,11 @@ def get_analyze(self, dataset_json, question):
             # Извлекаем текст ответа
             content = response.choices[0].message.content.strip()
 
-            # Парсим JSON-ответ
             try:
                 result = json.loads(content)
                 analysis = result.get("analysis", "No analysis provided.")
                 chart = result.get("chart", {})
-                chart_type = result.get("chartType", "bar")  # По умолчанию 'bar', если тип не указан
+                chart_type = result.get("chartType", "bar")
             except json.JSONDecodeError:
                 raise ValueError("Failed to parse chart configuration. Check the AI response format.")
 

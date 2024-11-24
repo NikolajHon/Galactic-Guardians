@@ -66,12 +66,23 @@ async def get_answer(request: ChatRequest):
 
 @app.post("/get_analyse")
 async def get_analyse(request: ChatRequest):
-    SQProcessor.load_csv("datasets/Cleaned_Students_Performance.csv")
+    dataset_dir = "datasets"
+    dataset_files = sorted(os.listdir(dataset_dir))
 
-    # Генерируем SQL-запрос
+    dataset = SQProcessor.choose_dataset(request.message)
+
+    # Проверяем валидность выбранного номера
+    if dataset <= 0 or dataset > len(dataset_files):
+        print(f"Invalid dataset number: {dataset}")
+        return
+
+    selected_file = os.path.join(dataset_dir, dataset_files[dataset - 1])
+    print(f"We choose dataset {dataset}: {selected_file}")
+
+    SQProcessor.load_csv(selected_file)
+
     sql_query = SQProcessor.generate_query(request.message)
 
-    # Выполняем SQL-запрос и получаем данные в формате JSON
     result = SQProcessor.retrieve_data(sql_query)
     if result.empty:
         return {"error": "No data retrieved for the query."}
