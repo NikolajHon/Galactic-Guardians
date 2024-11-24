@@ -52,6 +52,25 @@ async def get_answer(request: ChatRequest):
     except Exception as e:
         # Общий обработчик ошибок
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+
+@app.post("/get_analyse")
+async def get_analyse(request: ChatRequest):
+    SQProcessor.load_csv("datasets/Cleaned_Students_Performance.csv")
+
+    # Генерируем SQL-запрос
+    sql_query = SQProcessor.generate_query(request.message)
+
+    # Выполняем SQL-запрос и получаем данные в формате JSON
+    result = SQProcessor.retrieve_data(sql_query)
+    if result.empty:
+        return {"error": "No data retrieved for the query."}
+
+    # Анализируем данные и вопрос
+    analyses = SQProcessor.get_analyze(result.to_dict(orient="records"), request.message)  # Убрали await
+    return {"analysis": analyses}
+
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     if file.content_type != "multipart/form-data":
