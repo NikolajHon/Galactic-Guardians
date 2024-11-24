@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
+import MyChart from "./MyChart.jsx";
 
 function App() {
     const [messages, setMessages] = useState([]);
@@ -78,6 +79,9 @@ function App() {
             </footer>
         </div>
     );
+    // return (
+    //     <MyChart/>
+    // );
 }
 
 export default App;
